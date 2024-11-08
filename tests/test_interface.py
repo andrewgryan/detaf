@@ -83,3 +83,10 @@ def test_parse_issue_time(bulletin, expected):
 def test_parse_weather_conditions(bulletin, expected):
     taf = detaf.parse(bulletin)
     assert taf.weather_conditions == expected
+
+@pytest.mark.parametrize("bulletin,expected", [
+    ("TAF EIDW 081647Z 0816/0916 9999", [])
+])
+def test_parse_visibility(bulletin, expected):
+    taf = detaf.parse(bulletin)
+    assert taf.weather_conditions[0].phenomena == expected
