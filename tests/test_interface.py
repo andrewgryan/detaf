@@ -29,3 +29,16 @@ def test_parse_icao_code(bulletin, expected):
 def test_parse_issue_time(bulletin, expected):
     taf = detaf.parse(bulletin)
     assert taf.issue_time == expected
+
+
+@pytest.mark.parametrize("bulletin,expected", [
+    ("TAF LFPG 080500Z", []),
+    ("TAF LFPG 080500Z 0805/0905", [detaf.WeatherCondition(((8, 5), (9, 5)))]),
+    ("TAF EIDW 080500Z 0805/0905 0807/0809", [
+        detaf.WeatherCondition(detaf.period((8, 5), (9, 5))),
+        detaf.WeatherCondition(detaf.period((8, 7), (8, 9))),
+    ])
+])
+def test_parse_weather_conditions(bulletin, expected):
+    taf = detaf.parse(bulletin)
+    assert taf.weather_conditions == expected
