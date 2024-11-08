@@ -9,7 +9,25 @@ def test_integration():
     PROB30 TEMPO 0906/0912 BKN008
     """
     actual = detaf.parse(report)
-    expected = detaf.TAF()
+    expected = detaf.TAF(
+        icao_identifier="EGAA",
+        version=detaf.Version.ORIGINAL,
+        issue_time=detaf.issue(8, 10, 58),
+        weather_conditions=[
+            detaf.WeatherCondition(
+                period=((8, 12), (9, 12)),
+            ),
+            detaf.WeatherCondition(
+                period=((8, 12), (9, 6)),
+                change=detaf.Change.TEMPO
+            ),
+            detaf.WeatherCondition(
+                period=((9, 6), (9, 12)),
+                probability=30,
+                change=detaf.Change.TEMPO
+            )
+        ]
+    )
     assert actual == expected
 
 
