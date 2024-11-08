@@ -36,6 +36,22 @@ class Wind:
     gust: int | None = None
 
 
+class CloudDescription(str, Enum):
+    NO_SIGNIFICANT_CLOUD = "NSC"
+    CEILING_AND_VISIBILITY_OK = "CAVOK"
+    FEW = "FEW"
+    BROKEN = "BKN"
+    OVERCAST = "OVC"
+    SCATTERED = "SCT"
+    SKY_CLEAR = "SKC"
+
+
+@dataclass
+class Cloud:
+    description: CloudDescription
+    height: int
+
+
 Phenomenon = Visibility | Wind
 
 
@@ -172,7 +188,7 @@ def parse_change(tokens, cursor=0):
 
 
 def parse_phenomenon(tokens, cursor=0):
-    for parser in [parse_visibility, parse_wind]:
+    for parser in [parse_visibility, parse_wind, parse_cloud]:
         phenomenon, cursor = parser(tokens, cursor)
         if phenomenon:
             return phenomenon, cursor
@@ -199,6 +215,33 @@ def parse_wind(tokens, cursor=0):
     else:
         return None, cursor
 
+
+def parse_cloud(tokens, cursor=0):
+    token = peek(tokens, cursor)
+
+    # Description
+    pointer = 0
+    description = None
+    for key in CloudDescription:
+        if token.startswith(key):
+            description = key
+            pointer += len(key)
+            break
+
+    # Height
+    height = None
+    try:
+        width = 3
+        height = 100 * int(token[pointer : pointer + width])
+        pointer += width
+    except ValueError:
+        pass
+
+    if description:
+        return Cloud(description, height), cursor + 1
+    else:
+        return None, cursor
+    
 
 def peek(tokens, cursor):
     try:

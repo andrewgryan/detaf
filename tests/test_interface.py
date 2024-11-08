@@ -19,19 +19,24 @@ def test_integration():
                 phenomena=[
                     detaf.Wind(140, 10),
                     detaf.Visibility(9999),
+                    detaf.Cloud("BKN", 1500)
                 ]
             ),
             detaf.WeatherCondition(
                 period=((8, 12), (9, 6)),
                 change=detaf.Change.TEMPO,
                 phenomena=[
-                    detaf.Visibility(6000)
+                    detaf.Visibility(6000),
+                    detaf.Cloud("BKN", 800)
                 ]
             ),
             detaf.WeatherCondition(
                 period=((9, 6), (9, 12)),
                 probability=30,
-                change=detaf.Change.TEMPO
+                change=detaf.Change.TEMPO,
+                phenomena=[
+                    detaf.Cloud("BKN", 800)
+                ]
             )
         ]
     )
