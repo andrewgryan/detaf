@@ -22,3 +22,19 @@ TAF(
   WeatherCondition(period=period(begin=dayhour(day=9, hour=6), end=dayhour(day=9,
       hour=12)), probability=None, change=<Change.TEMPO: 'TEMPO'>, phenomena=[])])
 ```
+
+Easy to traverse data structure, suitable for any template engine.
+
+```python
+>>> taf = detaf.parse(bulletin)
+>>> for cnd in taf.weather_conditions:
+...     for phenom in cnd.phenomena:
+...         print(cnd.period, phenom)
+...
+period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=12)) Wind(direction=140, speed=10, gust=None)
+period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=12)) Visibility(distance=9999)
+period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=12)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=1500)
+period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=6)) Visibility(distance=6000)
+period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=6)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=800)
+period(begin=dayhour(day=9, hour=6), end=dayhour(day=9, hour=12)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=800)
+```
