@@ -4,6 +4,7 @@ from collections import namedtuple
 
 
 class Change(str, Enum):
+    BECMG = "BECMG"
     TEMPO = "TEMPO"
 
 
@@ -38,7 +39,9 @@ class TAF:
 
 
 def parse(bulletin: str) -> TAF:
-    words = bulletin.split(" ")
+    words = bulletin.strip().split(" ")
+    words = [word.strip() for word in words if word != ""]
+    print(words)
 
     # Station information and bulletin time
     format, cursor = parse_format(words, 0)
@@ -137,6 +140,8 @@ def parse_change(tokens, cursor=0):
     token = peek(tokens, cursor)
     if token == "TEMPO":
         return Change.TEMPO, cursor + 1
+    elif token == "BECMG":
+        return Change.BECMG, cursor + 1
     else:
         return None, cursor
 
