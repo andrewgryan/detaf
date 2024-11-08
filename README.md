@@ -1,6 +1,6 @@
 # Decode TAF
 
-Convert a TAF string
+Convert a TAF string to a data structure.
 
 ```python
 >>> import detaf
