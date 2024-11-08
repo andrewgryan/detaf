@@ -16,10 +16,17 @@ def test_integration():
         weather_conditions=[
             detaf.WeatherCondition(
                 period=((8, 12), (9, 12)),
+                phenomena=[
+                    detaf.Wind(140, 10),
+                    detaf.Visibility(9999),
+                ]
             ),
             detaf.WeatherCondition(
                 period=((8, 12), (9, 6)),
-                change=detaf.Change.TEMPO
+                change=detaf.Change.TEMPO,
+                phenomena=[
+                    detaf.Visibility(6000)
+                ]
             ),
             detaf.WeatherCondition(
                 period=((9, 6), (9, 12)),
@@ -85,7 +92,7 @@ def test_parse_weather_conditions(bulletin, expected):
     assert taf.weather_conditions == expected
 
 @pytest.mark.parametrize("bulletin,expected", [
-    ("TAF EIDW 081647Z 0816/0916 9999", [])
+    ("TAF EIDW 081647Z 0816/0916 9999", [detaf.Visibility(9999)])
 ])
 def test_parse_visibility(bulletin, expected):
     taf = detaf.parse(bulletin)

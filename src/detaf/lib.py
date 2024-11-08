@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
@@ -24,10 +25,26 @@ dayhour = namedtuple("dayhour", "day hour")
 
 
 @dataclass
+class Visibility:
+    distance: int
+
+
+@dataclass
+class Wind:
+    direction: int
+    speed: int
+    gust: int | None = None
+
+
+Phenomenon = Visibility | Wind
+
+
+@dataclass
 class WeatherCondition:
     period: period
     probability: int | None = None
     change: Change | None = None
+    phenomena: list[Phenomenon] = field(default_factory=list)
 
 
 @dataclass
@@ -93,7 +110,15 @@ def parse_condition(tokens, cursor=0):
     change, cursor = parse_change(tokens, cursor)
     period, cursor = parse_period(tokens, cursor)
     if period:
-        return WeatherCondition(period, probability, change), cursor
+        phenomena = []
+        while cursor < len(tokens):
+            phenomenon, cursor = parse_phenomenon(tokens, cursor)
+            if phenomenon:
+                phenomena.append(phenomenon)
+            else:
+                break
+        print(phenomena)
+        return WeatherCondition(period, probability, change, phenomena=phenomena), cursor
     else:
         return None, cursor
 
@@ -142,6 +167,35 @@ def parse_change(tokens, cursor=0):
         return Change.TEMPO, cursor + 1
     elif token == "BECMG":
         return Change.BECMG, cursor + 1
+    else:
+        return None, cursor
+
+
+def parse_phenomenon(tokens, cursor=0):
+    for parser in [parse_visibility, parse_wind]:
+        phenomenon, cursor = parser(tokens, cursor)
+        if phenomenon:
+            return phenomenon, cursor
+    return None, cursor
+
+    
+def parse_visibility(tokens, cursor=0):
+    pattern = re.compile(r"[0-9]{4}")
+    token = peek(tokens, cursor)
+    if len(token) == 4 and pattern.match(token):
+        return Visibility(int(token)), cursor + 1
+    else:
+        return None, cursor
+
+
+def parse_wind(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    if token.endswith("KT"):
+        if "G" in token:
+            gust = int(token[6:8])
+        else:
+            gust = None
+        return Wind(int(token[:3]), int(token[3:5]), gust), cursor + 1
     else:
         return None, cursor
 
