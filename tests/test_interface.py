@@ -37,6 +37,14 @@ def test_parse_issue_time(bulletin, expected):
     ("TAF EIDW 080500Z 0805/0905 0807/0809", [
         detaf.WeatherCondition(detaf.period((8, 5), (9, 5))),
         detaf.WeatherCondition(detaf.period((8, 7), (8, 9))),
+    ]),
+    ("TAF EIDW 080500Z 0805/0905 PROB30 TEMPO 0807/0809", [
+        detaf.WeatherCondition(detaf.period((8, 5), (9, 5))),
+        detaf.WeatherCondition(detaf.period((8, 7), (8, 9)), probability=30, change=detaf.Change.TEMPO),
+    ]),
+    ("TAF EIDW 080500Z 0805/0905 TEMPO 0807/0809", [
+        detaf.WeatherCondition(detaf.period((8, 5), (9, 5))),
+        detaf.WeatherCondition(detaf.period((8, 7), (8, 9)), change=detaf.Change.TEMPO),
     ])
 ])
 def test_parse_weather_conditions(bulletin, expected):

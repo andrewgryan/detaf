@@ -3,6 +3,10 @@ from enum import Enum
 from collections import namedtuple
 
 
+class Change(str, Enum):
+    TEMPO = "TEMPO"
+
+
 class Version(str, Enum):
     ORIGINAL = "ORIGINAL"
     AMMENDED = "AMMENDED"
@@ -21,6 +25,8 @@ dayhour = namedtuple("dayhour", "day hour")
 @dataclass
 class WeatherCondition:
     period: period
+    probability: int | None = None
+    change: Change | None = None
 
 
 @dataclass
@@ -80,9 +86,11 @@ def parse_icao_identifier(tokens, cursor=0):
 
 
 def parse_condition(tokens, cursor=0):
+    probability, cursor = parse_probability(tokens, cursor)
+    change, cursor = parse_change(tokens, cursor)
     period, cursor = parse_period(tokens, cursor)
     if period:
-        return WeatherCondition(period), cursor
+        return WeatherCondition(period, probability, change), cursor
     else:
         return None, cursor
 
@@ -115,6 +123,22 @@ def parse_period(tokens, cursor=0):
 
 def is_period(token):
     return (len(token) == 9) and (token[4] == "/")
+
+
+def parse_probability(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    if token.startswith("PROB"):
+        return int(token[4:6]), cursor + 1
+    else:
+        return None, cursor
+
+
+def parse_change(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    if token == "TEMPO":
+        return Change.TEMPO, cursor + 1
+    else:
+        return None, cursor
 
 
 def peek(tokens, cursor):
