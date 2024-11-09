@@ -1,7 +1,7 @@
 [project]
 name = "detaf"
 version = "0.1.0"
-description = "Default template for PDM package"
+description = "Decode TAF files"
 authors = [
     {name = "andrewgryan", email = "andrew.ryan@metoffice.gov.uk"},
 ]
