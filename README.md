@@ -1,5 +1,7 @@
 # Decode TAF
 
+![463267a9-1d75-4edf-b8e0-38b98977111b~3.jpg](https://github.com/user-attachments/assets/d4b3808a-550d-440e-96a1-a5286ef33767)
+
 Convert a TAF string to a data structure.
 
 ```python
