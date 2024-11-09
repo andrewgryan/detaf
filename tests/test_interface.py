@@ -1,5 +1,6 @@
 import pytest
 import detaf
+from detaf import wx
 
 
 def test_integration():
@@ -64,7 +65,11 @@ def test_integration_eigw():
                 phenomena=[
                     detaf.Wind(140, 10),
                     detaf.Visibility(4000),
-                    # TODO: other phenomena
+                    wx.Wx(
+                        intensity="-",
+                        precipitation="DZ"
+                    ),
+                    detaf.Cloud("BKN", 700)
                 ]
             ),
             # BECMG 0818/0820 9999 NSW SCT010 BKN015
@@ -72,8 +77,10 @@ def test_integration_eigw():
                 period=((8, 18), (8, 20)),
                 change=detaf.Change.BECMG,
                 phenomena=[
-                    detaf.Visibility(9999)
-                    # TODO: other phenomena
+                    detaf.Visibility(9999),
+                    detaf.Wx.NO_SIGNIFICANT_WEATHER,
+                    detaf.Cloud("SCT", 1000),
+                    detaf.Cloud("BKN", 1500)
                 ]
             ),
             # BECMG 0901/0903 15005KT
@@ -106,8 +113,12 @@ def test_integration_eigw():
                 change=detaf.Change.TEMPO,
                 probability=30,
                 phenomena=[
-                    detaf.Visibility(4000)
-                    # TODO: other phenomena
+                    detaf.Visibility(4000),
+                    wx.Wx(
+                        intensity="-",
+                        precipitation="DZ"
+                    ),
+                    detaf.Cloud("BKN", 800)
                 ]
             ),
         ]
@@ -174,3 +185,10 @@ def test_parse_weather_conditions(bulletin, expected):
 def test_parse_visibility(bulletin, expected):
     taf = detaf.parse(bulletin)
     assert taf.weather_conditions[0].phenomena == expected
+
+
+def test_parse_wx():
+    assert wx.parse("-DZ") == wx.Wx(
+        intensity=wx.Intensity.LIGHT,
+        precipitation=wx.Precipitation.DRIZZLE
+    )

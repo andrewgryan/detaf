@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
+from detaf import wx
 
 
 class Change(str, Enum):
@@ -52,7 +53,11 @@ class Cloud:
     height: int
 
 
-Phenomenon = Visibility | Wind
+class Wx(str, Enum):
+    NO_SIGNIFICANT_WEATHER = "NSW"
+
+
+Phenomenon = Visibility | Wind | Cloud
 
 
 @dataclass
@@ -187,7 +192,7 @@ def parse_change(tokens, cursor=0):
 
 
 def parse_phenomenon(tokens, cursor=0):
-    for parser in [parse_visibility, parse_wind, parse_cloud]:
+    for parser in [parse_visibility, parse_wind, parse_cloud, parse_nsw, parse_wx]:
         phenomenon, cursor = parser(tokens, cursor)
         if phenomenon:
             return phenomenon, cursor
@@ -240,7 +245,24 @@ def parse_cloud(tokens, cursor=0):
         return Cloud(description, height), cursor + 1
     else:
         return None, cursor
-    
+
+
+def parse_nsw(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    if token == Wx.NO_SIGNIFICANT_WEATHER:
+        return Wx.NO_SIGNIFICANT_WEATHER, cursor + 1
+    else:
+        return None, cursor
+
+
+def parse_wx(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    obj = wx.parse(token)
+    if obj:
+        return obj, cursor + 1
+    else:
+        return None, cursor
+
 
 def peek(tokens, cursor):
     try:
