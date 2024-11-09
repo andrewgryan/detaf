@@ -133,7 +133,6 @@ def parse_condition(tokens, cursor=0):
                 phenomena.append(phenomenon)
             else:
                 break
-        print(phenomena)
         return WeatherCondition(period, probability, change, phenomena=phenomena), cursor
     else:
         return None, cursor

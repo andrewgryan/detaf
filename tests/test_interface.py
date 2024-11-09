@@ -43,6 +43,78 @@ def test_integration():
     assert actual == expected
 
 
+def test_integration_eigw():
+    report = """
+    TAF EIDW 081700Z 0818/0918 14010KT 4000 -DZ BKN007
+    BECMG 0818/0820 9999 NSW SCT010 BKN015
+    BECMG 0901/0903 15005KT
+    BECMG 0907/0909 13010KT
+    TEMPO 0907/0918 BKN012
+    PROB30 TEMPO 0907/0912 4000 -DZ BKN008
+    """
+    actual = detaf.parse(report)
+    expected = detaf.TAF(
+        icao_identifier="EIDW",
+        version=detaf.Version.ORIGINAL,
+        issue_time=detaf.issue(8, 17, 0),
+        weather_conditions=[
+            # 0818/0918 14010KT 4000 -DZ BKN007
+            detaf.WeatherCondition(
+                period=((8, 18), (9, 18)),
+                phenomena=[
+                    detaf.Wind(140, 10),
+                    detaf.Visibility(4000),
+                    # TODO: other phenomena
+                ]
+            ),
+            # BECMG 0818/0820 9999 NSW SCT010 BKN015
+            detaf.WeatherCondition(
+                period=((8, 18), (8, 20)),
+                change=detaf.Change.BECMG,
+                phenomena=[
+                    detaf.Visibility(9999)
+                    # TODO: other phenomena
+                ]
+            ),
+            # BECMG 0901/0903 15005KT
+            detaf.WeatherCondition(
+                period=((9, 1), (9, 3)),
+                change=detaf.Change.BECMG,
+                phenomena=[
+                    detaf.Wind(150, 5),
+                ]
+            ),
+            # BECMG 0907/0909 13010KT
+            detaf.WeatherCondition(
+                period=((9, 7), (9, 9)),
+                change=detaf.Change.BECMG,
+                phenomena=[
+                    detaf.Wind(130, 10),
+                ]
+            ),
+            # TEMPO 0907/0918 BKN012
+            detaf.WeatherCondition(
+                period=((9, 7), (9, 18)),
+                change=detaf.Change.TEMPO,
+                phenomena=[
+                    detaf.Cloud("BKN", 1200)
+                ]
+            ),
+            # PROB30 TEMPO 0907/0912 4000 -DZ BKN008
+            detaf.WeatherCondition(
+                period=((9, 7), (9, 12)),
+                change=detaf.Change.TEMPO,
+                probability=30,
+                phenomena=[
+                    detaf.Visibility(4000)
+                    # TODO: other phenomena
+                ]
+            ),
+        ]
+    )
+    assert actual == expected
+
+
 @pytest.mark.parametrize("bulletin,expected", [
     ("TAF", detaf.Version.ORIGINAL),
     ("TAF AMD", detaf.Version.AMMENDED),
