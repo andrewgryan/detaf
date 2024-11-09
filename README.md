@@ -1,6 +1,9 @@
 # Decode TAF
 [![tests](https://img.shields.io/github/actions/workflow/status/andrewgryan/detaf/test.yml?branch=main&logo=github&style=for-the-badge)](https://github.com/andrewgryan/detaf/actions/workflows/test.yml)
 
+![License](https://img.shields.io/github/license/andrewgryan/detaf?style=for-the-badge)
+
+
 ![463267a9-1d75-4edf-b8e0-38b98977111b~3.jpg](https://github.com/user-attachments/assets/d4b3808a-550d-440e-96a1-a5286ef33767)
 
 Convert a TAF string to a data structure.
