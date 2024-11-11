@@ -62,6 +62,22 @@ class Wx:
     obscuration: Obscuration | None = None
     other: Other | None = None
 
+    def taf_encode(self):
+        parts = []
+        if self.proximity:
+            parts.append(self.proximity.value)
+        if self.intensity:
+            parts.append(self.intensity.value)
+        if self.descriptor:
+            parts.append(self.descriptor.value)
+        if self.precipitation:
+            parts.append(self.precipitation.value)
+        if self.obscuration:
+            parts.append(self.obscuration.value)
+        if self.other:
+            parts.append(self.other.value)
+        return "".join(parts)
+
 
 def parse(token: str) -> Wx | None:
     index = 0

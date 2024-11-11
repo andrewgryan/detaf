@@ -16,6 +16,12 @@ class Version(str, Enum):
     AMMENDED = "AMD"
     CORRECTED = "COR"
 
+    def taf_encode(self) -> str:
+        if self == Version.ORIGINAL:
+            return ""
+        else:
+            return self.value
+
 
 class UnknownFormat(Exception):
     pass
@@ -30,12 +36,21 @@ dayhour = namedtuple("dayhour", "day hour")
 class Visibility:
     distance: int
 
+    def taf_encode(self):
+        return f"{self.distance}"
+
 
 @dataclass
 class Wind:
     direction: int
     speed: int
     gust: int | None = None
+
+    def taf_encode(self):
+        if self.gust:
+            return f"{self.direction:03}{self.speed:02}G{self.gust:02}KT"
+        else:
+            return f"{self.direction:03}{self.speed:02}KT"
 
 
 class CloudDescription(str, Enum):
@@ -53,9 +68,15 @@ class Cloud:
     description: CloudDescription
     height: int
 
+    def taf_encode(self):
+        return f"{self.description.value}{self.height}"
+
 
 class Wx(str, Enum):
     NO_SIGNIFICANT_WEATHER = "NSW"
+
+    def taf_encode(self):
+        return "NSW"
 
 
 Phenomenon = Visibility | Wind | Cloud
@@ -68,6 +89,18 @@ class WeatherCondition:
     change: Change | None = None
     phenomena: list[Phenomenon] = field(default_factory=list)
 
+    def taf_encode(self):
+        parts = [
+            encode_period(self.period)
+        ]
+        if self.probability:
+            parts.insert(0, f"PROB{self.probability:02}")
+        if self.change:
+            parts.insert(0, self.change.value)
+        for phenomenon in self.phenomena:
+            parts.append(phenomenon.taf_encode())
+        return " ".join(parts)
+
 
 @dataclass
 class TAF:
@@ -76,9 +109,21 @@ class TAF:
     issue_time: str = None
     weather_conditions: list[WeatherCondition] = field(default_factory=list)
 
+    def taf_encode(self) -> str:
+        parts = ["TAF"]
+        if self.version != Version.ORIGINAL:
+            parts.append(self.version.taf_encode())
+        if self.icao_identifier:
+            parts.append(self.icao_identifier)
+        if self.issue_time:
+            parts.append(encode_issue_time(self.issue_time))
+        for weather in self.weather_conditions:
+            parts.append(weather.taf_encode())
+        return " ".join(parts)
+
 
 def parse(bulletin: str) -> TAF:
-    words = bulletin.strip().split(" ")
+    words = bulletin.strip().split()
     words = [word.strip() for word in words if word != ""]
 
     # Station information and bulletin time
@@ -274,16 +319,18 @@ def peek(tokens, cursor):
 decode = parse
 
 
-def encode(taf: TAF) -> str:
-    parts = ["TAF"]
-    if taf.version != Version.ORIGINAL:
-        parts.append(taf.version.value)
-    if taf.icao_identifier:
-        parts.append(taf.icao_identifier)
-    if taf.issue_time:
-        parts.append(encode_issue_time(taf.issue_time))
-    return " ".join(parts)
+def encode(item) -> str:
+    if isinstance(item, issue):
+        return encode_issue_time(item)
+    elif isinstance(item, period):
+        return encode_period(item)
+    else:
+        return item.taf_encode()
 
 
 def encode_issue_time(value):
     return f"{value.day:02}{value.hour:02}{value.minute:02}Z"
+
+
+def encode_period(value):
+    return f"{value.begin.day:02}{value.begin.hour:02}/{value.end.day:02}{value.end.hour:02}"
