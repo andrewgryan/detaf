@@ -1,4 +1,5 @@
 import detaf
+import pytest
 from hypothesis import given
 from hypothesis.strategies import text, sampled_from, integers, from_regex
 
@@ -110,6 +111,9 @@ def test_encode_decoded_report(version, icao_identifier):
 
 
 # CLOUD
-def test_encode_decode_cloud():
-    report = "BKN008"
+@pytest.mark.parametrize("report", [
+    "BKN008",
+    "CAVOK"
+])
+def test_encode_decode_cloud(report):
     assert detaf.encode(detaf.cloud.decode(report)) == report

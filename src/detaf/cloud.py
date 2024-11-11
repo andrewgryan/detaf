@@ -18,8 +18,11 @@ class Cloud:
     height: int
 
     def taf_encode(self):
-        h = self.height // 100  # integer divide
-        return f"{self.description.value}{h:03}"
+        if self.height:
+            h = self.height // 100  # integer divide
+            return f"{self.description.value}{h:03}"
+        else:
+            return self.description.value
 
     @staticmethod
     def taf_decode(token: str):
