@@ -25,3 +25,8 @@ distribution = true
 
 [tool.pdm.scripts]
 test = "pytest"
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "ruff>=0.7.3",
+]
