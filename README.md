@@ -89,3 +89,15 @@ Or a single weather condition list of weather phenomena.
 ```
 
 The ability to map back and forth from a data structure to TAF encoding allows hypermedia driven applications to interpret TAF reports.
+
+```python
+# Even more mix/match rendering
+>>> for cnd in taf.weather_conditions:
+...     for ph in cnd.phenomena:
+...         if isinstance(ph, detaf.Visibility):
+...             print(detaf.encode(cnd.period), ph)
+...
+0818/0918 Visibility(distance=4000)
+0818/0820 Visibility(distance=9999)
+0907/0912 Visibility(distance=4000)
+```
