@@ -13,8 +13,8 @@ class Change(str, Enum):
 
 class Version(str, Enum):
     ORIGINAL = "ORIGINAL"
-    AMMENDED = "AMMENDED"
-    CORRECTED = "CORRECTED"
+    AMMENDED = "AMD"
+    CORRECTED = "COR"
 
 
 class UnknownFormat(Exception):
@@ -80,7 +80,6 @@ class TAF:
 def parse(bulletin: str) -> TAF:
     words = bulletin.strip().split(" ")
     words = [word.strip() for word in words if word != ""]
-    print(words)
 
     # Station information and bulletin time
     format, cursor = parse_format(words, 0)
@@ -270,3 +269,21 @@ def peek(tokens, cursor):
         return tokens[cursor]
     except IndexError:
         return None
+
+
+decode = parse
+
+
+def encode(taf: TAF) -> str:
+    parts = ["TAF"]
+    if taf.version != Version.ORIGINAL:
+        parts.append(taf.version.value)
+    if taf.icao_identifier:
+        parts.append(taf.icao_identifier)
+    if taf.issue_time:
+        parts.append(encode_issue_time(taf.issue_time))
+    return " ".join(parts)
+
+
+def encode_issue_time(value):
+    return f"{value.day:02}{value.hour:02}{value.minute:02}Z"
