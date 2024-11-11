@@ -43,3 +43,19 @@ period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=6)) Visibility(dis
 period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=6)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=800)
 period(begin=dayhour(day=9, hour=6), end=dayhour(day=9, hour=12)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=800)
 ```
+
+# Render encoded sections and information
+
+Detaf enables partial encoding,
+to make it easier to annotate parts of the report.
+For example, to add tooltips or syntax highlighting.
+
+```python
+>>> for cnd in taf.weather_conditions:
+...     print(detaf.encode(cnd))
+... 0812/0912 14010KT 9999 BKN015
+... TEMPO 0812/0906 6000 BKN008
+... PROB30 TEMPO 0906/0912 BKN008
+```
+
+
