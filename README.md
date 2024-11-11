@@ -44,7 +44,7 @@ period(begin=dayhour(day=8, hour=12), end=dayhour(day=9, hour=6)) Cloud(descript
 period(begin=dayhour(day=9, hour=6), end=dayhour(day=9, hour=12)) Cloud(description=<CloudDescription.BROKEN: 'BKN'>, height=800)
 ```
 
-# Render encoded sections and information
+## Render TAF encodings and Python objects
 
 Detaf enables partial encoding,
 to make it easier to annotate parts of the report.
