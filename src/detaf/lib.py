@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
 from detaf import wx
+from detaf.cloud import Cloud
 from detaf import wx as weather
 
 
@@ -51,25 +52,6 @@ class Wind:
             return f"{self.direction:03}{self.speed:02}G{self.gust:02}KT"
         else:
             return f"{self.direction:03}{self.speed:02}KT"
-
-
-class CloudDescription(str, Enum):
-    NO_SIGNIFICANT_CLOUD = "NSC"
-    CEILING_AND_VISIBILITY_OK = "CAVOK"
-    FEW = "FEW"
-    BROKEN = "BKN"
-    OVERCAST = "OVC"
-    SCATTERED = "SCT"
-    SKY_CLEAR = "SKC"
-
-
-@dataclass
-class Cloud:
-    description: CloudDescription
-    height: int
-
-    def taf_encode(self):
-        return f"{self.description.value}{self.height}"
 
 
 class Wx(str, Enum):
@@ -267,27 +249,9 @@ def parse_wind(tokens, cursor=0):
 
 def parse_cloud(tokens, cursor=0):
     token = peek(tokens, cursor)
-
-    # Description
-    pointer = 0
-    description = None
-    for key in CloudDescription:
-        if token.startswith(key):
-            description = key
-            pointer += len(key)
-            break
-
-    # Height
-    height = None
-    try:
-        width = 3
-        height = 100 * int(token[pointer : pointer + width])
-        pointer += width
-    except ValueError:
-        pass
-
-    if description:
-        return Cloud(description, height), cursor + 1
+    obj = Cloud.taf_decode(token)
+    if obj:
+        return obj, cursor + 1
     else:
         return None, cursor
 

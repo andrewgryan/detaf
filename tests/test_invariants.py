@@ -107,3 +107,9 @@ def test_encode_decoded_report(version, icao_identifier):
     report += f" {icao_identifier}"
     report += " 000000Z"
     assert detaf.encode(detaf.decode(report)) == report
+
+
+# CLOUD
+def test_encode_decode_cloud():
+    report = "BKN008"
+    assert detaf.encode(detaf.cloud.decode(report)) == report
