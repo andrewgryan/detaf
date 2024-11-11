@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
 from detaf import wx
+from detaf import wx as weather
 
 
 class Change(str, Enum):

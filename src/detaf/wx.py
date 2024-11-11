@@ -66,11 +66,27 @@ class Wx:
 def parse(token: str) -> Wx | None:
     index = 0
 
+    # Proximity
+    proximity = None
+    for key in Proximity:
+        if token[index:].startswith(key):
+            proximity = key
+            index += len(key)
+            break
+
     # Intensity
     intensity = None
     for key in Intensity:
         if token[index:].startswith(key):
             intensity = key
+            index += len(key)
+            break
+
+    # Descriptor
+    descriptor = None
+    for key in Descriptor:
+        if token[index:].startswith(key):
+            descriptor = key
             index += len(key)
             break
 
@@ -82,7 +98,25 @@ def parse(token: str) -> Wx | None:
             index += len(key)
             break
 
-    if precipitation is None:
-        return None
+    # Obscuration
+    obscuration = None
+    for key in Obscuration:
+        if token[index:].startswith(key):
+            obscuration = key
+            index += len(key)
+            break
+
+    # Other
+    other = None
+    for key in Other:
+        if token[index:].startswith(key):
+            other = key
+            index += len(key)
+            break
+
+    if (precipitation is not None) or (obscuration is not None) or (other is not None):
+        return Wx(proximity=proximity, intensity=intensity, descriptor=descriptor, precipitation=precipitation, obscuration=obscuration, other=other)
     else:
-        return Wx(intensity=intensity, precipitation=precipitation)
+        return None
+
+decode = parse
