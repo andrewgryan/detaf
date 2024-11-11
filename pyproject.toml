@@ -25,6 +25,7 @@ distribution = true
 
 [tool.pdm.scripts]
 test = "pytest"
+fmt = "ruff format"
 
 [tool.pdm.dev-dependencies]
 lint = [

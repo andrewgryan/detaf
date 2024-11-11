@@ -131,8 +131,16 @@ def parse(token: str) -> Wx | None:
             break
 
     if (precipitation is not None) or (obscuration is not None) or (other is not None):
-        return Wx(proximity=proximity, intensity=intensity, descriptor=descriptor, precipitation=precipitation, obscuration=obscuration, other=other)
+        return Wx(
+            proximity=proximity,
+            intensity=intensity,
+            descriptor=descriptor,
+            precipitation=precipitation,
+            obscuration=obscuration,
+            other=other,
+        )
     else:
         return None
+
 
 decode = parse

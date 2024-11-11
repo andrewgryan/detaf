@@ -72,9 +72,7 @@ class WeatherCondition:
     phenomena: list[Phenomenon] = field(default_factory=list)
 
     def taf_encode(self):
-        parts = [
-            encode_period(self.period)
-        ]
+        parts = [encode_period(self.period)]
         if self.probability:
             parts.insert(0, f"PROB{self.probability:02}")
         if self.change:
@@ -123,7 +121,7 @@ def parse(bulletin: str) -> TAF:
         else:
             print(f"unrecognised token: {words[cursor]}")
             cursor += 1  # Skip: bad token
-    
+
     return TAF(version, icao_identifier, issue_time, conditions)
 
 
@@ -133,7 +131,7 @@ def parse_format(tokens, cursor=0):
         return TAF, cursor + 1
     else:
         raise UnknownFormat(token)
-        
+
 
 def parse_version(tokens, cursor=0) -> (Version, int):
     token = peek(tokens, cursor)
@@ -165,7 +163,9 @@ def parse_condition(tokens, cursor=0):
                 phenomena.append(phenomenon)
             else:
                 break
-        return WeatherCondition(period, probability, change, phenomena=phenomena), cursor
+        return WeatherCondition(
+            period, probability, change, phenomena=phenomena
+        ), cursor
     else:
         return None, cursor
 
@@ -180,7 +180,6 @@ def parse_issue_time(tokens, cursor=0):
     hour = int(token[2:4])
     minute = int(token[4:6])
     return issue(day, hour, minute), cursor + 1
-
 
 
 def parse_period(tokens, cursor=0):
@@ -225,7 +224,7 @@ def parse_phenomenon(tokens, cursor=0):
             return phenomenon, cursor
     return None, cursor
 
-    
+
 def parse_visibility(tokens, cursor=0):
     pattern = re.compile(r"[0-9]{4}")
     token = peek(tokens, cursor)

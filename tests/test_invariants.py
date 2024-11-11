@@ -6,12 +6,15 @@ from hypothesis.strategies import text, sampled_from, integers, from_regex
 
 # WEATHER
 
+
 @given(
     intensity=sampled_from(detaf.weather.Intensity),
     descriptor=sampled_from(detaf.weather.Descriptor),
     precipitation=sampled_from(detaf.weather.Precipitation),
 )
-def test_decode_weather_given_intensity_descriptor_precipitation(intensity, descriptor, precipitation):
+def test_decode_weather_given_intensity_descriptor_precipitation(
+    intensity, descriptor, precipitation
+):
     report = intensity + descriptor + precipitation
     assert detaf.weather.decode(report).intensity == intensity
     assert detaf.weather.decode(report).descriptor == descriptor
@@ -64,6 +67,7 @@ def test_decode_weather_given_other(other):
 
 # VISIBILITY
 
+
 @given(distance=integers(min_value=0, max_value=9999))
 def test_visibility(distance):
     report = f"TAF AAAA 000000Z 0000/0000 {distance:04}"
@@ -72,9 +76,10 @@ def test_visibility(distance):
 
 # WIND
 
+
 @given(
     direction=integers(min_value=0, max_value=360),
-    speed=integers(min_value=0, max_value=99)
+    speed=integers(min_value=0, max_value=99),
 )
 def test_wind_direction_and_speed(direction, speed):
     report = f"TAF AAAA 000000Z 0000/0000 {direction:03}{speed:02}KT"
@@ -82,10 +87,11 @@ def test_wind_direction_and_speed(direction, speed):
     assert wind.speed == speed
     assert wind.direction == direction
 
+
 @given(
     direction=integers(min_value=0, max_value=360),
     speed=integers(min_value=0, max_value=99),
-    gust=integers(min_value=0, max_value=99)
+    gust=integers(min_value=0, max_value=99),
 )
 def test_wind_direction_speed_gust(direction, speed, gust):
     report = f"TAF AAAA 000000Z 0000/0000 {direction:03}{speed:02}G{gust:02}KT"
@@ -96,6 +102,7 @@ def test_wind_direction_speed_gust(direction, speed, gust):
 
 
 # Encode
+
 
 @given(
     version=sampled_from(detaf.Version),
@@ -111,9 +118,6 @@ def test_encode_decoded_report(version, icao_identifier):
 
 
 # CLOUD
-@pytest.mark.parametrize("report", [
-    "BKN008",
-    "CAVOK"
-])
+@pytest.mark.parametrize("report", ["BKN008", "CAVOK"])
 def test_encode_decode_cloud(report):
     assert detaf.encode(detaf.cloud.decode(report)) == report
