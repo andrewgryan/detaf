@@ -4,11 +4,8 @@
 [metadata]
 groups = ["default", "lint", "test"]
 strategy = ["inherit_metadata"]
-lock_version = "4.5.0"
-content_hash = "sha256:63b0e32e970dbedd3afb71926f51f62646a0afa29d83e6601e364262d46da000"
-
-[[metadata.targets]]
-requires_python = ">=3.11"
+lock_version = "4.4.2"
+content_hash = "sha256:bbe8674f209f6eb3560792db6b53b4bc582bff64a6b355bae5489087e7b7fadf"
 
 [[package]]
 name = "attrs"
@@ -16,9 +13,6 @@ version = "24.2.0"
 requires_python = ">=3.7"
 summary = "Classes Without Boilerplate"
 groups = ["test"]
-dependencies = [
-    "importlib-metadata; python_version < \"3.8\"",
-]
 files = [
     {file = "attrs-24.2.0-py3-none-any.whl", hash = "sha256:81921eb96de3191c8258c199618104dd27ac608d9366f5e35d011eae1867ede2"},
     {file = "attrs-24.2.0.tar.gz", hash = "sha256:5cfb1b9148b5b086569baec03f20d7b6bf3bcacc9a42bebf87ffaaca362f6346"},
@@ -44,7 +38,6 @@ summary = "A library for property-based testing"
 groups = ["test"]
 dependencies = [
     "attrs>=22.2.0",
-    "exceptiongroup>=1.0.0; python_version < \"3.11\"",
     "sortedcontainers<3.0.0,>=2.1.0",
 ]
 files = [
@@ -93,15 +86,27 @@ summary = "pytest: simple powerful testing with Python"
 groups = ["test"]
 dependencies = [
     "colorama; sys_platform == \"win32\"",
-    "exceptiongroup>=1.0.0rc8; python_version < \"3.11\"",
     "iniconfig",
     "packaging",
     "pluggy<2,>=1.5",
-    "tomli>=1; python_version < \"3.11\"",
 ]
 files = [
     {file = "pytest-8.3.3-py3-none-any.whl", hash = "sha256:a6853c7375b2663155079443d2e45de913a911a11d669df02a50814944db57b2"},
     {file = "pytest-8.3.3.tar.gz", hash = "sha256:70b98107bd648308a7952b06e6ca9a50bc660be218d53c257cc1fc94fda10181"},
+]
+
+[[package]]
+name = "pytest-watcher"
+version = "0.4.3"
+requires_python = "<4.0.0,>=3.7.0"
+summary = "Automatically rerun your tests on file modifications"
+groups = ["test"]
+dependencies = [
+    "watchdog>=2.0.0",
+]
+files = [
+    {file = "pytest_watcher-0.4.3-py3-none-any.whl", hash = "sha256:d59b1e1396f33a65ea4949b713d6884637755d641646960056a90b267c3460f9"},
+    {file = "pytest_watcher-0.4.3.tar.gz", hash = "sha256:0cb0e4661648c8c0ff2b2d25efa5a8e421784b9e4c60fcecbf9b7c30b2d731b3"},
 ]
 
 [[package]]
@@ -139,4 +144,15 @@ groups = ["test"]
 files = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
+]
+
+[[package]]
+name = "watchdog"
+version = "6.0.0"
+requires_python = ">=3.9"
+summary = "Filesystem events monitoring"
+groups = ["test"]
+files = [
+    {file = "watchdog-6.0.0-py3-none-win_amd64.whl", hash = "sha256:cbafb470cf848d93b5d013e2ecb245d4aa1c8fd0504e863ccefa32445359d680"},
+    {file = "watchdog-6.0.0.tar.gz", hash = "sha256:9ddf7c82fda3ae8e24decda1338ede66e1c99883db93711d8fb941eaa2d8c282"},
 ]

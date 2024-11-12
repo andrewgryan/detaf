@@ -53,6 +53,23 @@ class Wind:
         else:
             return f"{self.direction:03}{self.speed:02}KT"
 
+    @staticmethod
+    def taf_decode(token: str):
+        if token.endswith("KT"):
+            if "G" in token:
+                gust = int(token[6:8])
+            else:
+                gust = None
+            direction = None
+            try:
+                direction = int(token[:3])
+            except ValueError:
+                direction = token[:3]
+                assert direction == "VRB", "must be either VRB or 3-digit number"
+            return Wind(direction, int(token[3:5]), gust)
+        else:
+            return None  # Explicit is better than implicit
+
 
 class Wx(str, Enum):
     NO_SIGNIFICANT_WEATHER = "NSW"
@@ -239,12 +256,9 @@ def parse_visibility(tokens, cursor=0):
 
 def parse_wind(tokens, cursor=0):
     token = peek(tokens, cursor)
-    if token.endswith("KT"):
-        if "G" in token:
-            gust = int(token[6:8])
-        else:
-            gust = None
-        return Wind(int(token[:3]), int(token[3:5]), gust), cursor + 1
+    wind = Wind.taf_decode(token)
+    if wind:
+        return wind, cursor + 1
     else:
         return None, cursor
 

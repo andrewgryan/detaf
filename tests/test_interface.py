@@ -215,3 +215,10 @@ def test_parse_wx():
 
 def test_iterable():
     assert list(detaf.decode("TAF COR")) == ["TAF", detaf.Version.CORRECTED]
+
+
+def test_variable_wind_conditions():
+    text = "VRB02KT"
+    assert detaf.Wind.taf_decode(text).direction == "VRB"
+    assert detaf.Wind.taf_decode(text).speed == 2
+    assert detaf.Wind.taf_decode(text).taf_encode() == text
