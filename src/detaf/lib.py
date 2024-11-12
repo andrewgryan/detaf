@@ -103,6 +103,16 @@ class TAF:
             parts.append(weather.taf_encode())
         return " ".join(parts)
 
+    def __iter__(self):
+        yield "TAF"
+        if self.version != Version.ORIGINAL:
+            yield self.version
+        if self.icao_identifier:
+            yield self.icao_identifier
+        if self.issue_time:
+            yield self.issue_time
+        yield from self.weather_conditions
+
 
 def parse(bulletin: str) -> TAF:
     words = bulletin.strip().split()
@@ -289,6 +299,8 @@ def encode(item) -> str:
         return encode_issue_time(item)
     elif isinstance(item, period):
         return encode_period(item)
+    elif isinstance(item, str):
+        return item
     else:
         return item.taf_encode()
 

@@ -211,3 +211,7 @@ def test_parse_wx():
     assert wx.parse("-DZ") == wx.Wx(
         intensity=wx.Intensity.LIGHT, precipitation=wx.Precipitation.DRIZZLE
     )
+
+
+def test_iterable():
+    assert list(detaf.decode("TAF COR")) == ["TAF", detaf.Version.CORRECTED]
