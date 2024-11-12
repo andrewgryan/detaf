@@ -113,7 +113,7 @@ def test_encode_decoded_report(version, icao_identifier):
     if version != detaf.Version.ORIGINAL:
         report += f" {version.value}"
     report += f" {icao_identifier}"
-    report += " 000000Z"
+    report += " 000000Z 0000/0000 9999 PROB30 TEMPO 0000/0000 9999"
     assert detaf.encode(detaf.decode(report)) == report
 
 

@@ -72,11 +72,13 @@ class WeatherCondition:
     phenomena: list[Phenomenon] = field(default_factory=list)
 
     def taf_encode(self):
-        parts = [encode_period(self.period)]
+        parts = []
         if self.probability:
-            parts.insert(0, f"PROB{self.probability:02}")
+            parts.append(f"PROB{self.probability:02}")
         if self.change:
-            parts.insert(0, self.change.value)
+            parts.append(self.change.value)
+        if self.period:
+            parts.append(encode_period(self.period))
         for phenomenon in self.phenomena:
             parts.append(phenomenon.taf_encode())
         return " ".join(parts)
