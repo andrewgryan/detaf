@@ -2,8 +2,9 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
-from detaf import wx
+from detaf import wx, temperature
 from detaf.cloud import Cloud
+from detaf.temperature import Temperature
 from detaf import wx as weather
 
 
@@ -238,7 +239,7 @@ def parse_change(tokens, cursor=0):
 
 
 def parse_phenomenon(tokens, cursor=0):
-    for parser in [parse_visibility, parse_wind, parse_cloud, parse_nsw, parse_wx]:
+    for parser in [parse_visibility, parse_wind, parse_cloud, parse_nsw, parse_wx, parse_t]:
         phenomenon, cursor = parser(tokens, cursor)
         if phenomenon:
             return phenomenon, cursor
@@ -266,6 +267,15 @@ def parse_wind(tokens, cursor=0):
 def parse_cloud(tokens, cursor=0):
     token = peek(tokens, cursor)
     obj = Cloud.taf_decode(token)
+    if obj:
+        return obj, cursor + 1
+    else:
+        return None, cursor
+
+
+def parse_t(tokens, cursor=0):
+    token = peek(tokens, cursor)
+    obj = Temperature.taf_decode(token)
     if obj:
         return obj, cursor + 1
     else:

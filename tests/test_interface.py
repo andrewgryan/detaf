@@ -200,7 +200,11 @@ def test_parse_weather_conditions(bulletin, expected):
 
 
 @pytest.mark.parametrize(
-    "bulletin,expected", [("TAF EIDW 081647Z 0816/0916 9999", [detaf.Visibility(9999)])]
+    "bulletin,expected", [
+        ("TAF EIDW 081647Z 0816/0916 9999", [detaf.Visibility(9999)]),
+        ("TAF EIDW 081647Z 0816/0916 TX27/1815Z", [detaf.Temperature(27, "X", at=(18, 15))]),
+        ("TAF EIDW 081647Z 0816/0916 TN15/1806Z", [detaf.Temperature(15, "N", at=(18, 6))])
+    ]
 )
 def test_parse_visibility(bulletin, expected):
     taf = detaf.parse(bulletin)
