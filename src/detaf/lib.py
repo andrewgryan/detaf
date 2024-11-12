@@ -91,18 +91,6 @@ class TAF:
     issue_time: str = None
     weather_conditions: list[WeatherCondition] = field(default_factory=list)
 
-    def taf_encode(self) -> str:
-        parts = ["TAF"]
-        if self.version != Version.ORIGINAL:
-            parts.append(self.version.taf_encode())
-        if self.icao_identifier:
-            parts.append(self.icao_identifier)
-        if self.issue_time:
-            parts.append(encode_issue_time(self.issue_time))
-        for weather in self.weather_conditions:
-            parts.append(weather.taf_encode())
-        return " ".join(parts)
-
     def __iter__(self):
         yield "TAF"
         if self.version != Version.ORIGINAL:
@@ -112,6 +100,9 @@ class TAF:
         if self.issue_time:
             yield self.issue_time
         yield from self.weather_conditions
+
+    def taf_encode(self) -> str:
+        return " ".join(encode(item) for item in self)
 
 
 def parse(bulletin: str) -> TAF:
