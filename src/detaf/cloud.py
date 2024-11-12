@@ -12,17 +12,25 @@ class CloudDescription(str, Enum):
     SKY_CLEAR = "SKC"
 
 
+class Type(str, Enum):
+    CUMULONIMBUS = "CB"
+    TOWERING_CUMULONIMBUS = "TCU"
+
+
 @dataclass
 class Cloud:
     description: CloudDescription
-    height: int
+    height: int | None = None
+    type: Type | None = None
 
     def taf_encode(self):
+        parts = [self.description.value]
         if self.height:
             h = self.height // 100  # integer divide
-            return f"{self.description.value}{h:03}"
-        else:
-            return self.description.value
+            parts.append(f"{h:03}")
+        if self.type:
+            parts.append(self.type.value)
+        return "".join(parts)
 
     @staticmethod
     def taf_decode(token: str):
@@ -44,8 +52,16 @@ class Cloud:
         except ValueError:
             pass
 
+        # Type
+        type = None
+        for key in Type:
+            width = len(key)
+            if token[pointer : pointer + width] == key:
+                type = key
+                pointer += width
+
         if description:
-            return Cloud(description, height)
+            return Cloud(description, height, type)
         else:
             return None
 

@@ -118,6 +118,6 @@ def test_encode_decoded_report(version, icao_identifier):
 
 
 # CLOUD
-@pytest.mark.parametrize("report", ["BKN008", "CAVOK"])
+@pytest.mark.parametrize("report", ["BKN008", "CAVOK", "SCT018CB"])
 def test_encode_decode_cloud(report):
     assert detaf.encode(detaf.cloud.decode(report)) == report
