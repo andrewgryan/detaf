@@ -73,7 +73,7 @@ to make it easier to selectively render TAF snippets or Python data.
 <div>BECMG 0901/0903 15005KT</div>
 <div>BECMG 0907/0909 13010KT</div>
 <div>TEMPO 0907/0918 BKN012</div>
-<div>TEMPO PROB30 0907/0912 4000 -DZ BKN008</div>
+<div>PROB30 TEMPO 0907/0912 4000 -DZ BKN008</div>
 ```
 
 Or a single weather condition list of weather phenomena.
