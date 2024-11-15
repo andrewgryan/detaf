@@ -137,6 +137,8 @@ class WeatherCondition:
         parts = []
         if self.probability:
             parts.append(f"PROB{self.probability:02}")
+        if self.fm:
+            parts.append(self.fm.taf_encode())
         if self.change:
             parts.append(self.change.value)
         if self.period:
