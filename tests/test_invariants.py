@@ -112,7 +112,7 @@ def test_encode_decoded_report(modification, icao_identifier):
     report = f"TAF"
     report += f" {modification.value}"
     report += f" {icao_identifier}"
-    report += " 000000Z 0000/0000 9999 PROB30 TEMPO 0000/0000 9999"
+    report += " 000000Z 0000/0000 9999 PROB30 TEMPO 0000/0000 9999 FM000000 5000"
     assert detaf.encode(detaf.decode(report)) == report
 
 
