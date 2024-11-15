@@ -40,13 +40,13 @@ class From:
     hour: int
     minute: int
 
-    @staticmethod
-    def taf_decode(text: str):
+    @classmethod
+    def taf_decode(cls, text: str):
         if text[:2] == "FM":
             day = int(text[2:4])
             hour = int(text[4:6])
             minute = int(text[6:8])
-            return From(day, hour, minute)
+            return cls(day, hour, minute)
 
     def taf_encode(self) -> str:
         return f"FM{self.day:02}{self.hour:02}{self.minute:02}"
