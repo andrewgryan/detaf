@@ -130,3 +130,33 @@ def test_encode_decode_temperature(report):
 
 def test_encode_decode():
     assert detaf.encode(detaf.decode("")) == ""
+
+
+# FMDDHHMM syntax
+
+
+@given(
+    day=integers(min_value=0, max_value=31),
+    hour=integers(min_value=0, max_value=31),
+    minute=integers(min_value=0, max_value=31),
+)
+def test_fm_syntax(day, hour, minute):
+    text = f"FM{day:02}{hour:02}{minute:02}"
+    assert detaf.From.taf_decode(text).day == day
+    assert detaf.From.taf_decode(text).hour == hour
+    assert detaf.From.taf_decode(text).minute == minute
+
+
+def test_fm_syntax_given_invalid_text():
+    assert detaf.From.taf_decode("XX000000") is None
+
+
+@given(
+    day=integers(min_value=0, max_value=31),
+    hour=integers(min_value=0, max_value=31),
+    minute=integers(min_value=0, max_value=31),
+)
+def test_fm_encode(day, hour, minute):
+    assert (
+        detaf.From(day, hour, minute).taf_encode() == f"FM{day:02}{hour:02}{minute:02}"
+    )

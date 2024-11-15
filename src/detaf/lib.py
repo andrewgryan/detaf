@@ -13,6 +13,26 @@ class Change(str, Enum):
     TEMPO = "TEMPO"
 
 
+@dataclass
+class From:
+    """Forecast condition change after certain time"""
+
+    day: int
+    hour: int
+    minute: int
+
+    @staticmethod
+    def taf_decode(text: str):
+        if text[:2] == "FM":
+            day = int(text[2:4])
+            hour = int(text[4:6])
+            minute = int(text[6:8])
+            return From(day, hour, minute)
+
+    def taf_encode(self) -> str:
+        return f"FM{self.day:02}{self.hour:02}{self.minute:02}"
+
+
 class Modification(str, Enum):
     AMMENDED = "AMD"
     CORRECTED = "COR"
@@ -73,9 +93,10 @@ Phenomenon = Visibility | Wind | Cloud
 
 @dataclass
 class WeatherCondition:
-    period: period
+    period: period = None
     probability: int | None = None
     change: Change | None = None
+    fm: From | None = None
     phenomena: list[Phenomenon] = field(default_factory=list)
 
     def taf_encode(self):
@@ -169,21 +190,32 @@ def parse_icao_identifier(tokens, cursor=0):
 
 def parse_condition(tokens, cursor=0):
     probability, cursor = parse_probability(tokens, cursor)
-    change, cursor = parse_change(tokens, cursor)
-    period, cursor = parse_period(tokens, cursor)
-    if period:
-        phenomena = []
-        while cursor < len(tokens):
-            phenomenon, cursor = parse_phenomenon(tokens, cursor)
-            if phenomenon:
-                phenomena.append(phenomenon)
-            else:
-                break
+    fm, cursor = parse_decoder(From.taf_decode)(tokens, cursor)
+    if fm:
+        phenomena, cursor = parse_phenomena(tokens, cursor)
         return WeatherCondition(
-            period, probability, change, phenomena=phenomena
+            fm=fm, probability=probability, phenomena=phenomena
         ), cursor
     else:
-        return None, cursor
+        change, cursor = parse_change(tokens, cursor)
+        period, cursor = parse_period(tokens, cursor)
+        phenomena, cursor = parse_phenomena(tokens, cursor)
+        if period:
+            return WeatherCondition(
+                period, probability, change, phenomena=phenomena
+            ), cursor
+    return None, cursor
+
+
+def parse_phenomena(tokens, cursor):
+    phenomena = []
+    while cursor < len(tokens):
+        phenomenon, cursor = parse_phenomenon(tokens, cursor)
+        if phenomenon:
+            phenomena.append(phenomenon)
+        else:
+            break
+    return phenomena, cursor
 
 
 def parse_issue_time(tokens, cursor=0):
@@ -255,6 +287,18 @@ def parse_visibility(tokens, cursor=0):
         return Visibility(int(token)), cursor + 1
     else:
         return None, cursor
+
+
+def parse_decoder(decoder):
+    def parser(tokens, cursor=0):
+        token = peek(tokens, cursor)
+        obj = decoder(token)
+        if obj:
+            return obj, cursor + 1
+        else:
+            return None, cursor
+
+    return parser
 
 
 def parse_wind(tokens, cursor=0):

@@ -111,6 +111,20 @@ def test_integration_eigw():
     assert actual == expected
 
 
+def test_integration_from():
+    report = """
+    TAF EIDW 081700Z 0818/0918 14010KT 4000 -DZ BKN007
+    FM090100 15005KT
+    TEMPO 0907/0918 BKN012
+    PROB30 TEMPO 0907/0912 4000 -DZ BKN008
+    """
+    actual = detaf.parse(report).weather_conditions[1]
+    expected = detaf.WeatherCondition(
+        fm=detaf.From(9, 1, 0), phenomena=[detaf.Wind(direction=150, speed=5)]
+    )
+    assert actual == expected
+
+
 @pytest.mark.parametrize(
     "bulletin,expected",
     [
@@ -198,11 +212,18 @@ def test_parse_weather_conditions(bulletin, expected):
 
 
 @pytest.mark.parametrize(
-    "bulletin,expected", [
+    "bulletin,expected",
+    [
         ("TAF EIDW 081647Z 0816/0916 9999", [detaf.Visibility(9999)]),
-        ("TAF EIDW 081647Z 0816/0916 TX27/1815Z", [detaf.Temperature(27, "X", at=(18, 15))]),
-        ("TAF EIDW 081647Z 0816/0916 TN15/1806Z", [detaf.Temperature(15, "N", at=(18, 6))])
-    ]
+        (
+            "TAF EIDW 081647Z 0816/0916 TX27/1815Z",
+            [detaf.Temperature(27, "X", at=(18, 15))],
+        ),
+        (
+            "TAF EIDW 081647Z 0816/0916 TN15/1806Z",
+            [detaf.Temperature(15, "N", at=(18, 6))],
+        ),
+    ],
 )
 def test_parse_visibility(bulletin, expected):
     taf = detaf.parse(bulletin)
