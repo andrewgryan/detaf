@@ -105,13 +105,12 @@ def test_wind_direction_speed_gust(direction, speed, gust):
 
 
 @given(
-    version=sampled_from(detaf.Version),
+    modification=sampled_from(detaf.Modification),
     icao_identifier=text("ABCDEFGHIJKLMNOPQRSTUVWXYZ", min_size=4, max_size=4),
 )
-def test_encode_decoded_report(version, icao_identifier):
+def test_encode_decoded_report(modification, icao_identifier):
     report = f"TAF"
-    if version != detaf.Version.ORIGINAL:
-        report += f" {version.value}"
+    report += f" {modification.value}"
     report += f" {icao_identifier}"
     report += " 000000Z 0000/0000 9999 PROB30 TEMPO 0000/0000 9999"
     assert detaf.encode(detaf.decode(report)) == report
@@ -127,3 +126,7 @@ def test_encode_decode_cloud(report):
 @pytest.mark.parametrize("report", ["TX27/1815Z", "TN15/1806Z"])
 def test_encode_decode_temperature(report):
     assert detaf.encode(detaf.temperature.decode(report)) == report
+
+
+def test_encode_decode():
+    assert detaf.encode(detaf.decode("")) == ""

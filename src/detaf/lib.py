@@ -13,20 +13,9 @@ class Change(str, Enum):
     TEMPO = "TEMPO"
 
 
-class Version(str, Enum):
-    ORIGINAL = "ORIGINAL"
+class Modification(str, Enum):
     AMMENDED = "AMD"
     CORRECTED = "COR"
-
-    def taf_encode(self) -> str:
-        if self == Version.ORIGINAL:
-            return ""
-        else:
-            return self.value
-
-
-class UnknownFormat(Exception):
-    pass
 
 
 issue = namedtuple("issue", "day hour minute")
@@ -102,17 +91,25 @@ class WeatherCondition:
         return " ".join(parts)
 
 
+class Format(str, Enum):
+    TAF = "TAF"
+    # METAR = "METAR"
+    # SPECI = "SPECI"
+
+
 @dataclass
 class TAF:
-    version: str = Version
+    format: Format | None = Format.TAF
+    modification: Modification | None = None
     icao_identifier: str | None = None
     issue_time: str = None
     weather_conditions: list[WeatherCondition] = field(default_factory=list)
 
     def __iter__(self):
-        yield "TAF"
-        if self.version != Version.ORIGINAL:
-            yield self.version
+        if self.format:
+            yield self.format
+        if self.modification:
+            yield self.modification
         if self.icao_identifier:
             yield self.icao_identifier
         if self.issue_time:
@@ -129,7 +126,7 @@ def parse(bulletin: str) -> TAF:
 
     # Station information and bulletin time
     format, cursor = parse_format(words, 0)
-    version, cursor = parse_version(words, cursor)
+    modification, cursor = parse_modification(words, cursor)
     icao_identifier, cursor = parse_icao_identifier(words, cursor)
     issue_time, cursor = parse_issue_time(words, cursor)
 
@@ -143,25 +140,23 @@ def parse(bulletin: str) -> TAF:
             print(f"unrecognised token: {words[cursor]}")
             cursor += 1  # Skip: bad token
 
-    return TAF(version, icao_identifier, issue_time, conditions)
+    return TAF(format, modification, icao_identifier, issue_time, conditions)
 
 
 def parse_format(tokens, cursor=0):
     token = peek(tokens, cursor)
-    if token == "TAF":
-        return TAF, cursor + 1
-    else:
-        raise UnknownFormat(token)
+    for key in Format:
+        if token == key:
+            return key, cursor + 1
+    return None, cursor
 
 
-def parse_version(tokens, cursor=0) -> (Version, int):
+def parse_modification(tokens, cursor=0) -> (Modification | None, int):
     token = peek(tokens, cursor)
-    if token == "AMD":
-        return Version.AMMENDED, cursor + 1
-    elif token == "COR":
-        return Version.CORRECTED, cursor + 1
-    else:
-        return Version.ORIGINAL, cursor
+    for key in Modification:
+        if token == key:
+            return key, cursor + 1
+    return None, cursor
 
 
 def parse_icao_identifier(tokens, cursor=0):
@@ -239,7 +234,14 @@ def parse_change(tokens, cursor=0):
 
 
 def parse_phenomenon(tokens, cursor=0):
-    for parser in [parse_visibility, parse_wind, parse_cloud, parse_nsw, parse_wx, parse_t]:
+    for parser in [
+        parse_visibility,
+        parse_wind,
+        parse_cloud,
+        parse_nsw,
+        parse_wx,
+        parse_t,
+    ]:
         phenomenon, cursor = parser(tokens, cursor)
         if phenomenon:
             return phenomenon, cursor

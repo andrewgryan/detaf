@@ -12,7 +12,6 @@ def test_integration():
     actual = detaf.parse(report)
     expected = detaf.TAF(
         icao_identifier="EGAA",
-        version=detaf.Version.ORIGINAL,
         issue_time=detaf.issue(8, 10, 58),
         weather_conditions=[
             detaf.WeatherCondition(
@@ -51,7 +50,6 @@ def test_integration_eigw():
     actual = detaf.parse(report)
     expected = detaf.TAF(
         icao_identifier="EIDW",
-        version=detaf.Version.ORIGINAL,
         issue_time=detaf.issue(8, 17, 0),
         weather_conditions=[
             # 0818/0918 14010KT 4000 -DZ BKN007
@@ -116,15 +114,15 @@ def test_integration_eigw():
 @pytest.mark.parametrize(
     "bulletin,expected",
     [
-        ("TAF", detaf.Version.ORIGINAL),
-        ("TAF AMD", detaf.Version.AMMENDED),
-        ("TAF COR", detaf.Version.CORRECTED),
+        ("TAF", None),
+        ("TAF AMD", detaf.Modification.AMMENDED),
+        ("TAF COR", detaf.Modification.CORRECTED),
     ],
 )
 def test_parse_version(bulletin, expected):
     taf = detaf.parse(bulletin)
     assert isinstance(taf, detaf.TAF)
-    assert taf.version == expected
+    assert taf.modification == expected
 
 
 @pytest.mark.parametrize(
@@ -218,7 +216,7 @@ def test_parse_wx():
 
 
 def test_iterable():
-    assert list(detaf.decode("TAF COR")) == ["TAF", detaf.Version.CORRECTED]
+    assert list(detaf.decode("TAF COR")) == ["TAF", detaf.Modification.CORRECTED]
 
 
 def test_variable_wind_conditions():
