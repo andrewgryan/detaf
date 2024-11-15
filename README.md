@@ -1,5 +1,6 @@
 # Decode TAF
 [![tests](https://img.shields.io/github/actions/workflow/status/andrewgryan/detaf/test.yml?branch=main&logo=github&style=for-the-badge)](https://github.com/andrewgryan/detaf/actions/workflows/test.yml)
+[![PyPI - Version](https://img.shields.io/pypi/v/detaf?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/detaf/)
 ![License](https://img.shields.io/github/license/andrewgryan/detaf?style=for-the-badge)
 
 
