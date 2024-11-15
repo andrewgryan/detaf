@@ -15,9 +15,10 @@ Convert a TAF string to a data structure.
 ... TEMPO 0812/0906 6000 BKN008
 ... PROB30 TEMPO 0906/0912 BKN008
 ... """
->>> detaf.parse(bulletin)
+>>> detaf.decode(bulletin)
 TAF(
-  version=<Version.ORIGINAL: 'ORIGINAL'>,
+  format=<Format.TAF: 'TAF'>,
+  modification=None,
   icao_identifier='EGAA',
   issue_time=issue(day=8, hour=10, minute=58),
   weather_conditions=[
@@ -32,7 +33,7 @@ TAF(
 Easy to traverse data structure, suitable for any template engine.
 
 ```python
->>> taf = detaf.parse(bulletin)
+>>> taf = detaf.decode(bulletin)
 >>> for cnd in taf.weather_conditions:
 ...     for phenom in cnd.phenomena:
 ...         print(cnd.period, phenom)
