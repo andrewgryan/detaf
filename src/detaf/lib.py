@@ -7,6 +7,25 @@ from detaf.cloud import Cloud
 from detaf.temperature import Temperature
 from detaf import wx as weather
 
+__all__ = [
+    "Change",
+    "Cloud",
+    "decode",
+    "encode",
+    "From",
+    "issue",
+    "Modification",
+    "NSW",
+    "period",
+    "TAF",
+    "temperature",
+    "Temperature",
+    "Visibility",
+    "weather",
+    "WeatherCondition",
+    "Wind",
+]
+
 
 class Change(str, Enum):
     BECMG = "BECMG"
@@ -50,6 +69,14 @@ class Visibility:
     def taf_encode(self):
         return f"{self.distance}"
 
+    @staticmethod
+    def taf_decode(token: str):
+        pattern = re.compile(r"[0-9]{4}")
+        if len(token) == 4 and pattern.match(token):
+            return Visibility(int(token))
+        else:
+            return None
+
 
 @dataclass
 class Wind:
@@ -81,11 +108,18 @@ class Wind:
             return None  # Explicit is better than implicit
 
 
-class Wx(str, Enum):
+class NSW(str, Enum):
     NO_SIGNIFICANT_WEATHER = "NSW"
 
     def taf_encode(self):
         return "NSW"
+
+    @staticmethod
+    def taf_decode(token: str):
+        if token == NSW.NO_SIGNIFICANT_WEATHER:
+            return NSW.NO_SIGNIFICANT_WEATHER
+        else:
+            return None
 
 
 Phenomenon = Visibility | Wind | Cloud
@@ -141,7 +175,7 @@ class TAF:
         return " ".join(encode(item) for item in self)
 
 
-def parse(bulletin: str) -> TAF:
+def decode(bulletin: str) -> TAF:
     words = bulletin.strip().split()
     words = [word.strip() for word in words if word != ""]
 
@@ -267,26 +301,17 @@ def parse_change(tokens, cursor=0):
 
 def parse_phenomenon(tokens, cursor=0):
     for parser in [
-        parse_visibility,
-        parse_wind,
-        parse_cloud,
-        parse_nsw,
-        parse_wx,
-        parse_t,
+        parse_decoder(Visibility.taf_decode),
+        parse_decoder(Wind.taf_decode),
+        parse_decoder(Cloud.taf_decode),
+        parse_decoder(NSW.taf_decode),
+        parse_decoder(wx.parse),
+        parse_decoder(Temperature.taf_decode),
     ]:
         phenomenon, cursor = parser(tokens, cursor)
         if phenomenon:
             return phenomenon, cursor
     return None, cursor
-
-
-def parse_visibility(tokens, cursor=0):
-    pattern = re.compile(r"[0-9]{4}")
-    token = peek(tokens, cursor)
-    if len(token) == 4 and pattern.match(token):
-        return Visibility(int(token)), cursor + 1
-    else:
-        return None, cursor
 
 
 def parse_decoder(decoder):
@@ -301,58 +326,11 @@ def parse_decoder(decoder):
     return parser
 
 
-def parse_wind(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    wind = Wind.taf_decode(token)
-    if wind:
-        return wind, cursor + 1
-    else:
-        return None, cursor
-
-
-def parse_cloud(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    obj = Cloud.taf_decode(token)
-    if obj:
-        return obj, cursor + 1
-    else:
-        return None, cursor
-
-
-def parse_t(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    obj = Temperature.taf_decode(token)
-    if obj:
-        return obj, cursor + 1
-    else:
-        return None, cursor
-
-
-def parse_nsw(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    if token == Wx.NO_SIGNIFICANT_WEATHER:
-        return Wx.NO_SIGNIFICANT_WEATHER, cursor + 1
-    else:
-        return None, cursor
-
-
-def parse_wx(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    obj = wx.parse(token)
-    if obj:
-        return obj, cursor + 1
-    else:
-        return None, cursor
-
-
 def peek(tokens, cursor):
     try:
         return tokens[cursor]
     except IndexError:
         return None
-
-
-decode = parse
 
 
 def encode(item) -> str:

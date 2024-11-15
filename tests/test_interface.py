@@ -9,7 +9,7 @@ def test_integration():
     TEMPO 0812/0906 6000 BKN008
     PROB30 TEMPO 0906/0912 BKN008
     """
-    actual = detaf.parse(report)
+    actual = detaf.decode(report)
     expected = detaf.TAF(
         icao_identifier="EGAA",
         issue_time=detaf.issue(8, 10, 58),
@@ -47,7 +47,7 @@ def test_integration_eigw():
     TEMPO 0907/0918 BKN012
     PROB30 TEMPO 0907/0912 4000 -DZ BKN008
     """
-    actual = detaf.parse(report)
+    actual = detaf.decode(report)
     expected = detaf.TAF(
         icao_identifier="EIDW",
         issue_time=detaf.issue(8, 17, 0),
@@ -68,7 +68,7 @@ def test_integration_eigw():
                 change=detaf.Change.BECMG,
                 phenomena=[
                     detaf.Visibility(9999),
-                    detaf.Wx.NO_SIGNIFICANT_WEATHER,
+                    detaf.NSW.NO_SIGNIFICANT_WEATHER,
                     detaf.Cloud("SCT", 1000),
                     detaf.Cloud("BKN", 1500),
                 ],
@@ -118,7 +118,7 @@ def test_integration_from():
     TEMPO 0907/0918 BKN012
     PROB30 TEMPO 0907/0912 4000 -DZ BKN008
     """
-    actual = detaf.parse(report).weather_conditions[1]
+    actual = detaf.decode(report).weather_conditions[1]
     expected = detaf.WeatherCondition(
         fm=detaf.From(9, 1, 0), phenomena=[detaf.Wind(direction=150, speed=5)]
     )
@@ -134,7 +134,7 @@ def test_integration_from():
     ],
 )
 def test_parse_version(bulletin, expected):
-    taf = detaf.parse(bulletin)
+    taf = detaf.decode(bulletin)
     assert isinstance(taf, detaf.TAF)
     assert taf.modification == expected
 
@@ -148,7 +148,7 @@ def test_parse_version(bulletin, expected):
     ],
 )
 def test_parse_icao_code(bulletin, expected):
-    taf = detaf.parse(bulletin)
+    taf = detaf.decode(bulletin)
     assert taf.icao_identifier == expected
 
 
@@ -159,7 +159,7 @@ def test_parse_icao_code(bulletin, expected):
     ],
 )
 def test_parse_issue_time(bulletin, expected):
-    taf = detaf.parse(bulletin)
+    taf = detaf.decode(bulletin)
     assert taf.issue_time == expected
 
 
@@ -207,7 +207,7 @@ def test_parse_issue_time(bulletin, expected):
     ],
 )
 def test_parse_weather_conditions(bulletin, expected):
-    taf = detaf.parse(bulletin)
+    taf = detaf.decode(bulletin)
     assert taf.weather_conditions == expected
 
 
@@ -226,12 +226,12 @@ def test_parse_weather_conditions(bulletin, expected):
     ],
 )
 def test_parse_visibility(bulletin, expected):
-    taf = detaf.parse(bulletin)
+    taf = detaf.decode(bulletin)
     assert taf.weather_conditions[0].phenomena == expected
 
 
 def test_parse_wx():
-    assert wx.parse("-DZ") == wx.Wx(
+    assert wx.decode("-DZ") == wx.Wx(
         intensity=wx.Intensity.LIGHT, precipitation=wx.Precipitation.DRIZZLE
     )
 
