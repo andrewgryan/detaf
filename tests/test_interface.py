@@ -245,3 +245,8 @@ def test_variable_wind_conditions():
     assert detaf.Wind.taf_decode(text).direction == "VRB"
     assert detaf.Wind.taf_decode(text).speed == 2
     assert detaf.Wind.taf_decode(text).taf_encode() == text
+
+
+def test_preserve_unknown_text():
+    report = "TAF ABCD 000000Z 0000/0000 FOO 0000/0000 BAR"
+    assert detaf.encode(detaf.decode(report)) == report
