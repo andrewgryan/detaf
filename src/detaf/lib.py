@@ -195,6 +195,7 @@ def decode(bulletin: str) -> TAF:
             conditions.append(condition)
         else:
             print(f"unrecognised token: {words[cursor]}")
+            conditions.append(words[cursor])
             cursor += 1  # Skip: bad token
 
     return TAF(format, modification, icao_identifier, issue_time, conditions)
