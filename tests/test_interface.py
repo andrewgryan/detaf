@@ -1,6 +1,6 @@
 import pytest
 import detaf
-from detaf import wx
+from detaf import weather
 
 
 def test_integration():
@@ -230,9 +230,9 @@ def test_parse_visibility(bulletin, expected):
     assert taf.weather_conditions[0].phenomena == expected
 
 
-def test_parse_wx():
-    assert wx.decode("-DZ") == wx.Weather(
-        intensity=wx.Intensity.LIGHT, precipitation=wx.Precipitation.DRIZZLE
+def test_parse_weather():
+    assert weather.decode("-DZ") == weather.Weather(
+        intensity=weather.Intensity.LIGHT, precipitation=weather.Precipitation.DRIZZLE
     )
 
 

@@ -8,8 +8,8 @@ from detaf.cloud import Cloud
 from detaf.temperature import Temperature
 from detaf.wind import Wind
 from detaf.visibility import Visibility
-from detaf import wx as weather
-from detaf.wx import Weather
+from detaf import weather
+from detaf.weather import Weather
 
 __all__ = [
     "Change",
