@@ -58,7 +58,7 @@ def test_integration_eigw():
                 phenomena=[
                     detaf.Wind(140, 10),
                     detaf.Visibility(4000),
-                    wx.Wx(intensity="-", precipitation="DZ"),
+                    detaf.Weather(intensity="-", precipitation="DZ"),
                     detaf.Cloud("BKN", 700),
                 ],
             ),
@@ -102,7 +102,7 @@ def test_integration_eigw():
                 probability=30,
                 phenomena=[
                     detaf.Visibility(4000),
-                    wx.Wx(intensity="-", precipitation="DZ"),
+                    detaf.Weather(intensity="-", precipitation="DZ"),
                     detaf.Cloud("BKN", 800),
                 ],
             ),
@@ -231,7 +231,7 @@ def test_parse_visibility(bulletin, expected):
 
 
 def test_parse_wx():
-    assert wx.decode("-DZ") == wx.Wx(
+    assert wx.decode("-DZ") == wx.Weather(
         intensity=wx.Intensity.LIGHT, precipitation=wx.Precipitation.DRIZZLE
     )
 

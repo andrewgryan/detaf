@@ -2,10 +2,14 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
-from detaf import wx, temperature
+from detaf import temperature
+from detaf.phenomenon import Phenomenon
 from detaf.cloud import Cloud
 from detaf.temperature import Temperature
+from detaf.wind import Wind
+from detaf.visibility import Visibility
 from detaf import wx as weather
+from detaf.wx import Weather
 
 __all__ = [
     "Change",
@@ -22,6 +26,7 @@ __all__ = [
     "Temperature",
     "Visibility",
     "weather",
+    "Weather",
     "WeatherCondition",
     "Wind",
 ]
@@ -62,52 +67,6 @@ period = namedtuple("period", "begin end")
 dayhour = namedtuple("dayhour", "day hour")
 
 
-@dataclass
-class Visibility:
-    distance: int
-
-    def taf_encode(self):
-        return f"{self.distance}"
-
-    @staticmethod
-    def taf_decode(token: str):
-        pattern = re.compile(r"[0-9]{4}")
-        if len(token) == 4 and pattern.match(token):
-            return Visibility(int(token))
-        else:
-            return None
-
-
-@dataclass
-class Wind:
-    direction: int
-    speed: int
-    gust: int | None = None
-
-    def taf_encode(self):
-        if self.gust:
-            return f"{self.direction:03}{self.speed:02}G{self.gust:02}KT"
-        else:
-            return f"{self.direction:03}{self.speed:02}KT"
-
-    @staticmethod
-    def taf_decode(token: str):
-        if token.endswith("KT"):
-            if "G" in token:
-                gust = int(token[6:8])
-            else:
-                gust = None
-            direction = None
-            try:
-                direction = int(token[:3])
-            except ValueError:
-                direction = token[:3]
-                assert direction == "VRB", "must be either VRB or 3-digit number"
-            return Wind(direction, int(token[3:5]), gust)
-        else:
-            return None  # Explicit is better than implicit
-
-
 class NSW(str, Enum):
     NO_SIGNIFICANT_WEATHER = "NSW"
 
@@ -120,9 +79,6 @@ class NSW(str, Enum):
             return NSW.NO_SIGNIFICANT_WEATHER
         else:
             return None
-
-
-Phenomenon = Visibility | Wind | Cloud
 
 
 @dataclass
@@ -152,6 +108,9 @@ class Format(str, Enum):
     TAF = "TAF"
     # METAR = "METAR"
     # SPECI = "SPECI"
+
+    def taf_encode(self):
+        return self.value
 
 
 @dataclass
@@ -308,7 +267,7 @@ def parse_phenomenon(tokens, cursor=0):
         parse_decoder(Wind.taf_decode),
         parse_decoder(Cloud.taf_decode),
         parse_decoder(NSW.taf_decode),
-        parse_decoder(wx.parse),
+        parse_decoder(Weather.taf_decode),
         parse_decoder(Temperature.taf_decode),
     ]:
         phenomenon, cursor = parser(tokens, cursor)
@@ -337,7 +296,9 @@ def peek(tokens, cursor):
 
 
 def encode(item) -> str:
-    if isinstance(item, issue):
+    if hasattr(item, "taf_encode"):
+        return item.taf_encode()
+    elif isinstance(item, issue):
         return encode_issue_time(item)
     elif isinstance(item, period):
         return encode_period(item)

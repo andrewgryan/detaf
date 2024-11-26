@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from detaf.phenomenon import Phenomenon
 
 
 class CloudDescription(str, Enum):
@@ -18,7 +19,7 @@ class Type(str, Enum):
 
 
 @dataclass
-class Cloud:
+class Cloud(Phenomenon):
     description: CloudDescription
     height: int | None = None
     type: Type | None = None
