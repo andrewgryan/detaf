@@ -1,6 +1,6 @@
 import pytest
 import detaf
-from detaf import wx
+from detaf import weather
 
 
 def test_integration():
@@ -58,7 +58,7 @@ def test_integration_eigw():
                 phenomena=[
                     detaf.Wind(140, 10),
                     detaf.Visibility(4000),
-                    wx.Wx(intensity="-", precipitation="DZ"),
+                    detaf.Weather(intensity="-", precipitation="DZ"),
                     detaf.Cloud("BKN", 700),
                 ],
             ),
@@ -102,7 +102,7 @@ def test_integration_eigw():
                 probability=30,
                 phenomena=[
                     detaf.Visibility(4000),
-                    wx.Wx(intensity="-", precipitation="DZ"),
+                    detaf.Weather(intensity="-", precipitation="DZ"),
                     detaf.Cloud("BKN", 800),
                 ],
             ),
@@ -230,9 +230,9 @@ def test_parse_visibility(bulletin, expected):
     assert taf.weather_conditions[0].phenomena == expected
 
 
-def test_parse_wx():
-    assert wx.decode("-DZ") == wx.Wx(
-        intensity=wx.Intensity.LIGHT, precipitation=wx.Precipitation.DRIZZLE
+def test_parse_weather():
+    assert weather.decode("-DZ") == weather.Weather(
+        intensity=weather.Intensity.LIGHT, precipitation=weather.Precipitation.DRIZZLE
     )
 
 
