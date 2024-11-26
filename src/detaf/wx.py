@@ -63,10 +63,6 @@ class Weather(Phenomenon):
     obscuration: Obscuration | None = None
     other: Other | None = None
 
-    @property
-    def category(self):
-        return "weather"
-
     def taf_encode(self):
         parts = []
         if self.proximity:
