@@ -19,4 +19,5 @@ def phenomenon_parser(weather_types):
             if phenomenon:
                 return phenomenon, cursor
         return None, cursor
+
     return inner

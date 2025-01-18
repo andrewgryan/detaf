@@ -12,7 +12,9 @@ def test_metar():
         phenomena=[
             detaf.Wind(direction="VRB", speed=2),
             detaf.Visibility(9999),
-            detaf.Cloud(description="FEW", height=2400)
+            detaf.Cloud(description="FEW", height=2400),
+            detaf.TemperatureDewPoint(11, 5),
+            detaf.AirPressure(1024, units="hPa"),
         ],
     )
     assert actual == expected

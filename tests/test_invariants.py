@@ -165,6 +165,16 @@ def test_fm_encode(day, hour, minute):
 # METAR
 
 
-@pytest.mark.parametrize("report", ["METAR", "METAR EIDW", "METAR EIDW 010000Z"])
+@pytest.mark.parametrize(
+    "report",
+    [
+        "METAR",
+        "METAR EIDW",
+        "METAR EIDW 010000Z",
+        "METAR EIDW 010000Z 9999",
+        "METAR EIDW 010000Z Q1024",
+        "METAR EIDW 010000Z 11/05",
+    ],
+)
 def test_metar_decode_encode_returns_same_string(report):
     assert detaf.encode(detaf.decode(report)) == report

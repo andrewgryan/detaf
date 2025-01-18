@@ -11,6 +11,7 @@ def many(parser):
             else:
                 break
         return items, cursor
+
     return inner
 
 

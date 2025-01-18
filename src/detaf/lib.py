@@ -5,16 +5,17 @@ from collections import namedtuple
 from detaf import temperature
 from detaf.phenomenon import Phenomenon, phenomena_parser
 from detaf.cloud import Cloud
-from detaf.temperature import Temperature
+from detaf.temperature import Temperature, TemperatureDewPoint
 from detaf.wind import Wind
 from detaf.visibility import Visibility
 from detaf import weather
 from detaf.weather import Weather
-from detaf.metar import METAR
+from detaf.metar import METAR, AirPressure
 from detaf.temporal import issue, parse_issue_time, encode_issue_time
 from detaf.parser import peek, many, maybe
 
 __all__ = [
+    "AirPressure",
     "Change",
     "Cloud",
     "decode",
@@ -28,6 +29,7 @@ __all__ = [
     "METAR",
     "temperature",
     "Temperature",
+    "TemperatureDewPoint",
     "Visibility",
     "weather",
     "Weather",
