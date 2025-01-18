@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from detaf.phenomenon import Phenomenon
 
 
 class Proximity(str, Enum):
@@ -54,7 +55,7 @@ class Other(str, Enum):
 
 
 @dataclass
-class Wx:
+class Weather(Phenomenon):
     proximity: Proximity | None = None
     intensity: Intensity | None = None
     descriptor: Descriptor | None = None
@@ -78,8 +79,12 @@ class Wx:
             parts.append(self.other.value)
         return "".join(parts)
 
+    @classmethod
+    def taf_decode(cls, token: str):
+        return parse(token)
 
-def parse(token: str) -> Wx | None:
+
+def parse(token: str) -> Weather | None:
     index = 0
 
     # Proximity
@@ -131,7 +136,7 @@ def parse(token: str) -> Wx | None:
             break
 
     if (precipitation is not None) or (obscuration is not None) or (other is not None):
-        return Wx(
+        return Weather(
             proximity=proximity,
             intensity=intensity,
             descriptor=descriptor,
