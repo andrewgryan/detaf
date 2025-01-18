@@ -6,7 +6,15 @@ from detaf import weather
 def test_metar():
     report = "METAR EIDW 181200Z VRB02KT 9999 FEW024 11/05 Q1024 NOSIG"
     actual = detaf.decode(report)
-    expected = detaf.METAR(icao_identifier="EIDW", issue_time=detaf.issue(18, 12, 0))
+    expected = detaf.METAR(
+        icao_identifier="EIDW",
+        issue_time=detaf.issue(18, 12, 0),
+        phenomena=[
+            detaf.Wind(direction="VRB", speed=2),
+            detaf.Visibility(9999),
+            detaf.Cloud(description="FEW", height=2400)
+        ],
+    )
     assert actual == expected
 
 

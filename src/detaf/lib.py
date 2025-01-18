@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
 from detaf import temperature
-from detaf.phenomenon import Phenomenon
+from detaf.phenomenon import Phenomenon, phenomena_parser
 from detaf.cloud import Cloud
 from detaf.temperature import Temperature
 from detaf.wind import Wind
@@ -12,7 +12,7 @@ from detaf import weather
 from detaf.weather import Weather
 from detaf.metar import METAR
 from detaf.temporal import issue, parse_issue_time, encode_issue_time
-from detaf.parser import peek
+from detaf.parser import peek, many, maybe
 
 __all__ = [
     "Change",
@@ -190,33 +190,30 @@ def parse_icao_identifier(tokens, cursor=0):
 
 
 def parse_condition(tokens, cursor=0):
+    weather_types = [
+        Visibility,
+        Wind,
+        Cloud,
+        NSW,
+        Weather,
+        Temperature,
+    ]
     probability, cursor = parse_probability(tokens, cursor)
-    fm, cursor = parse_decoder(From.taf_decode)(tokens, cursor)
+    fm, cursor = maybe(From.taf_decode)(tokens, cursor)
     if fm:
-        phenomena, cursor = parse_phenomena(tokens, cursor)
+        phenomena, cursor = phenomena_parser(weather_types)(tokens, cursor)
         return WeatherCondition(
             fm=fm, probability=probability, phenomena=phenomena
         ), cursor
     else:
         change, cursor = parse_change(tokens, cursor)
         period, cursor = parse_period(tokens, cursor)
-        phenomena, cursor = parse_phenomena(tokens, cursor)
+        phenomena, cursor = phenomena_parser(weather_types)(tokens, cursor)
         if period:
             return WeatherCondition(
                 period, probability, change, phenomena=phenomena
             ), cursor
     return None, cursor
-
-
-def parse_phenomena(tokens, cursor):
-    phenomena = []
-    while cursor < len(tokens):
-        phenomenon, cursor = parse_phenomenon(tokens, cursor)
-        if phenomenon:
-            phenomena.append(phenomenon)
-        else:
-            break
-    return phenomena, cursor
 
 
 def parse_period(tokens, cursor=0):
@@ -252,33 +249,6 @@ def parse_change(tokens, cursor=0):
         return Change.BECMG, cursor + 1
     else:
         return None, cursor
-
-
-def parse_phenomenon(tokens, cursor=0):
-    for parser in [
-        parse_decoder(Visibility.taf_decode),
-        parse_decoder(Wind.taf_decode),
-        parse_decoder(Cloud.taf_decode),
-        parse_decoder(NSW.taf_decode),
-        parse_decoder(Weather.taf_decode),
-        parse_decoder(Temperature.taf_decode),
-    ]:
-        phenomenon, cursor = parser(tokens, cursor)
-        if phenomenon:
-            return phenomenon, cursor
-    return None, cursor
-
-
-def parse_decoder(decoder):
-    def parser(tokens, cursor=0):
-        token = peek(tokens, cursor)
-        obj = decoder(token)
-        if obj:
-            return obj, cursor + 1
-        else:
-            return None, cursor
-
-    return parser
 
 
 def encode(item) -> str:

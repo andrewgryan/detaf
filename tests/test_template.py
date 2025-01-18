@@ -46,9 +46,15 @@ def test_html_templating():
 
 
 def test_template_metar():
-    report = ""
+    report = "METAR EIDW 010000Z"
     env = Environment()
     env.filters["encode"] = detaf.encode
-    template = env.from_string("""""")
-    expect = """"""
-    assert template.render(taf=detaf.decode(report)) == expect
+    template = env.from_string("""
+        <h1>{{ tac.icao_identifier | encode }}</h1>
+        <p>{{ tac.issue_time.day }}</p>
+    """)
+    expect = """
+        <h1>EIDW</h1>
+        <p>1</p>
+    """
+    assert template.render(tac=detaf.decode(report)) == expect
