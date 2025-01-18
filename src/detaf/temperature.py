@@ -30,5 +30,6 @@ class Temperature:
     def taf_encode(self):
         return f"T{self.limit}{self.value:02}/{self.at.day:02}{self.at.hour:02}Z"
 
+
 def decode(s: str):
     return Temperature.taf_decode(s)

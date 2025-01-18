@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from detaf.phenomenon import Phenomenon
 
 
-
 @dataclass
 class Visibility(Phenomenon):
     distance: int

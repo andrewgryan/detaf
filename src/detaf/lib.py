@@ -10,6 +10,9 @@ from detaf.wind import Wind
 from detaf.visibility import Visibility
 from detaf import weather
 from detaf.weather import Weather
+from detaf.metar import METAR
+from detaf.temporal import issue, parse_issue_time, encode_issue_time
+from detaf.parser import peek
 
 __all__ = [
     "Change",
@@ -22,6 +25,7 @@ __all__ = [
     "NSW",
     "period",
     "TAF",
+    "METAR",
     "temperature",
     "Temperature",
     "Visibility",
@@ -62,7 +66,6 @@ class Modification(str, Enum):
     CORRECTED = "COR"
 
 
-issue = namedtuple("issue", "day hour minute")
 period = namedtuple("period", "begin end")
 dayhour = namedtuple("dayhour", "day hour")
 
@@ -106,7 +109,7 @@ class WeatherCondition:
 
 class Format(str, Enum):
     TAF = "TAF"
-    # METAR = "METAR"
+    METAR = "METAR"
     # SPECI = "SPECI"
 
     def taf_encode(self):
@@ -142,6 +145,8 @@ def decode(bulletin: str) -> TAF:
 
     # Station information and bulletin time
     format, cursor = parse_format(words, 0)
+    if format == Format.METAR:
+        return METAR.tac_decode(bulletin)
     modification, cursor = parse_modification(words, cursor)
     icao_identifier, cursor = parse_icao_identifier(words, cursor)
     issue_time, cursor = parse_issue_time(words, cursor)
@@ -214,18 +219,6 @@ def parse_phenomena(tokens, cursor):
     return phenomena, cursor
 
 
-def parse_issue_time(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    if not token:
-        return None, cursor
-
-    # Parse ddhhMMZ format into tuple
-    day = int(token[:2])
-    hour = int(token[2:4])
-    minute = int(token[4:6])
-    return issue(day, hour, minute), cursor + 1
-
-
 def parse_period(tokens, cursor=0):
     token = peek(tokens, cursor)
     if not token:
@@ -288,13 +281,6 @@ def parse_decoder(decoder):
     return parser
 
 
-def peek(tokens, cursor):
-    try:
-        return tokens[cursor]
-    except IndexError:
-        return None
-
-
 def encode(item) -> str:
     if hasattr(item, "taf_encode"):
         return item.taf_encode()
@@ -306,10 +292,6 @@ def encode(item) -> str:
         return item
     else:
         return item.taf_encode()
-
-
-def encode_issue_time(value):
-    return f"{value.day:02}{value.hour:02}{value.minute:02}Z"
 
 
 def encode_period(value):
