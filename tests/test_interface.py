@@ -3,6 +3,23 @@ import detaf
 from detaf import weather
 
 
+def test_metar():
+    report = "METAR EIDW 181200Z VRB02KT 9999 FEW024 11/05 Q1024 NOSIG"
+    actual = detaf.decode(report)
+    expected = detaf.METAR(
+        icao_identifier="EIDW",
+        issue_time=detaf.issue(18, 12, 0),
+        phenomena=[
+            detaf.Wind(direction="VRB", speed=2),
+            detaf.Visibility(9999),
+            detaf.Cloud(description="FEW", height=2400),
+            detaf.TemperatureDewPoint(11, 5),
+            detaf.AirPressure(1024, units="hPa"),
+        ],
+    )
+    assert actual == expected
+
+
 def test_integration():
     report = """
     TAF EGAA 081058Z 0812/0912 14010KT 9999 BKN015

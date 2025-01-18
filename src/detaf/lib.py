@@ -3,15 +3,19 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import namedtuple
 from detaf import temperature
-from detaf.phenomenon import Phenomenon
+from detaf.phenomenon import Phenomenon, phenomena_parser
 from detaf.cloud import Cloud
-from detaf.temperature import Temperature
+from detaf.temperature import Temperature, TemperatureDewPoint
 from detaf.wind import Wind
 from detaf.visibility import Visibility
 from detaf import weather
 from detaf.weather import Weather
+from detaf.metar import METAR, AirPressure
+from detaf.temporal import issue, parse_issue_time, encode_issue_time
+from detaf.parser import peek, many, maybe
 
 __all__ = [
+    "AirPressure",
     "Change",
     "Cloud",
     "decode",
@@ -22,8 +26,10 @@ __all__ = [
     "NSW",
     "period",
     "TAF",
+    "METAR",
     "temperature",
     "Temperature",
+    "TemperatureDewPoint",
     "Visibility",
     "weather",
     "Weather",
@@ -62,7 +68,6 @@ class Modification(str, Enum):
     CORRECTED = "COR"
 
 
-issue = namedtuple("issue", "day hour minute")
 period = namedtuple("period", "begin end")
 dayhour = namedtuple("dayhour", "day hour")
 
@@ -106,7 +111,7 @@ class WeatherCondition:
 
 class Format(str, Enum):
     TAF = "TAF"
-    # METAR = "METAR"
+    METAR = "METAR"
     # SPECI = "SPECI"
 
     def taf_encode(self):
@@ -142,6 +147,8 @@ def decode(bulletin: str) -> TAF:
 
     # Station information and bulletin time
     format, cursor = parse_format(words, 0)
+    if format == Format.METAR:
+        return METAR.tac_decode(bulletin)
     modification, cursor = parse_modification(words, cursor)
     icao_identifier, cursor = parse_icao_identifier(words, cursor)
     issue_time, cursor = parse_issue_time(words, cursor)
@@ -185,45 +192,30 @@ def parse_icao_identifier(tokens, cursor=0):
 
 
 def parse_condition(tokens, cursor=0):
+    weather_types = [
+        Visibility,
+        Wind,
+        Cloud,
+        NSW,
+        Weather,
+        Temperature,
+    ]
     probability, cursor = parse_probability(tokens, cursor)
-    fm, cursor = parse_decoder(From.taf_decode)(tokens, cursor)
+    fm, cursor = maybe(From.taf_decode)(tokens, cursor)
     if fm:
-        phenomena, cursor = parse_phenomena(tokens, cursor)
+        phenomena, cursor = phenomena_parser(weather_types)(tokens, cursor)
         return WeatherCondition(
             fm=fm, probability=probability, phenomena=phenomena
         ), cursor
     else:
         change, cursor = parse_change(tokens, cursor)
         period, cursor = parse_period(tokens, cursor)
-        phenomena, cursor = parse_phenomena(tokens, cursor)
+        phenomena, cursor = phenomena_parser(weather_types)(tokens, cursor)
         if period:
             return WeatherCondition(
                 period, probability, change, phenomena=phenomena
             ), cursor
     return None, cursor
-
-
-def parse_phenomena(tokens, cursor):
-    phenomena = []
-    while cursor < len(tokens):
-        phenomenon, cursor = parse_phenomenon(tokens, cursor)
-        if phenomenon:
-            phenomena.append(phenomenon)
-        else:
-            break
-    return phenomena, cursor
-
-
-def parse_issue_time(tokens, cursor=0):
-    token = peek(tokens, cursor)
-    if not token:
-        return None, cursor
-
-    # Parse ddhhMMZ format into tuple
-    day = int(token[:2])
-    hour = int(token[2:4])
-    minute = int(token[4:6])
-    return issue(day, hour, minute), cursor + 1
 
 
 def parse_period(tokens, cursor=0):
@@ -261,40 +253,6 @@ def parse_change(tokens, cursor=0):
         return None, cursor
 
 
-def parse_phenomenon(tokens, cursor=0):
-    for parser in [
-        parse_decoder(Visibility.taf_decode),
-        parse_decoder(Wind.taf_decode),
-        parse_decoder(Cloud.taf_decode),
-        parse_decoder(NSW.taf_decode),
-        parse_decoder(Weather.taf_decode),
-        parse_decoder(Temperature.taf_decode),
-    ]:
-        phenomenon, cursor = parser(tokens, cursor)
-        if phenomenon:
-            return phenomenon, cursor
-    return None, cursor
-
-
-def parse_decoder(decoder):
-    def parser(tokens, cursor=0):
-        token = peek(tokens, cursor)
-        obj = decoder(token)
-        if obj:
-            return obj, cursor + 1
-        else:
-            return None, cursor
-
-    return parser
-
-
-def peek(tokens, cursor):
-    try:
-        return tokens[cursor]
-    except IndexError:
-        return None
-
-
 def encode(item) -> str:
     if hasattr(item, "taf_encode"):
         return item.taf_encode()
@@ -306,10 +264,6 @@ def encode(item) -> str:
         return item
     else:
         return item.taf_encode()
-
-
-def encode_issue_time(value):
-    return f"{value.day:02}{value.hour:02}{value.minute:02}Z"
 
 
 def encode_period(value):
